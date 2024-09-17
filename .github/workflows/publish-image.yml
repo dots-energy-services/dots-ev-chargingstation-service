@@ -10,7 +10,7 @@ on:
       - v*
   pull_request:
 env:
-  IMAGE_NAME: <<ImageName>>
+  IMAGE_NAME: evservice
 jobs:
   push:
     runs-on: ubuntu-latest
