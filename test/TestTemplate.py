@@ -27,14 +27,16 @@ class Test(unittest.TestCase):
         # Arrange
         service = CalculationServiceEV()
         service.influx_connector = InfluxDBMock()
-        # pv_dispatch_params = {}
-        # pv_dispatch_params["PV_Dispatch"] = [1.0, 2.0]
+        ems_ev_dispatch_params = {}
+        ems_ev_dispatch_params["dispatch_ev"] = 11000
 
         # Initialize calculation functions
         service.init_calculation_service(energy_system)
 
         # Execute
-        ret_val = service.send_state_of_charge(None, datetime(2020,9,1,12,0), TimeStepInformation(1,2), "e19a105b-97cb-4e3e-8767-67a9764b77f6", None)
+        ret_val = service.send_state_of_charge(None, datetime(2020,9,1,12,0), TimeStepInformation(1,2), "e19a105b-97cb-4e3e-8767-67a9764b77f6", energy_system)
+        ret_val = service.update_state_of_charge(ems_ev_dispatch_params, datetime(2020, 9, 1, 12, 0), TimeStepInformation(1, 2),
+                                               "e19a105b-97cb-4e3e-8767-67a9764b77f6", energy_system)
 
         # # Implement
         # self.assertEqual(ret_val["EConnectionDispatch"], 3.0)
