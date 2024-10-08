@@ -39,7 +39,7 @@ class Test(unittest.TestCase):
         # Execute
         ret_val = service.send_state_of_charge(None, datetime(2020,9,1,12,0), TimeStepInformation(1,2), "8bd3af63-21ef-46ac-8ac6-f97c7fdb6d62", energy_system)
         ret_val = service.update_state_of_charge(ems_ev_dispatch_params, datetime(2020, 9, 1, 12, 0), TimeStepInformation(1, 2),
-                                               "e19a105b-97cb-4e3e-8767-67a9764b77f6", energy_system)
+                                               "8bd3af63-21ef-46ac-8ac6-f97c7fdb6d62", energy_system)
 
         # # Implement
         # self.assertEqual(ret_val["EConnectionDispatch"], 3.0)
