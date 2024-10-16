@@ -13,7 +13,7 @@ START_DATE_TIME = datetime(2024, 1, 1, 0, 0, 0)
 SIMULATION_DURATION_IN_SECONDS = 960
 
 def simulator_environment_e_connection():
-    return SimulatorConfiguration("EConnection", ["e19a105b-97cb-4e3e-8767-67a9764b77f6"], "Mock-Econnection", "127.0.0.1", BROKER_TEST_PORT, "test-id", SIMULATION_DURATION_IN_SECONDS, START_DATE_TIME, "test-host", "test-port", "test-username", "test-password", "test-database-name", h.HelicsLogLevel.DEBUG, ["PVInstallation", "EConnection"])
+    return SimulatorConfiguration("EConnection", ["e19a105b-97cb-4e3e-8767-67a9764b77f6"], "Mock-Econnection", "127.0.0.1", BROKER_TEST_PORT, "test-id", SIMULATION_DURATION_IN_SECONDS, START_DATE_TIME, "test-host", "test-port", "test-username", "test-password", "test-database-name", h.HelicsLogLevel.DEBUG, ["PVInstallation", "EConnection"], 1)
 # 8bd3af63-21ef-46ac-8ac6-f97c7fdb6d62 adjusted ev id
 # e19a105b-97cb-4e3e-8767-67a9764b77f6
 class Test(unittest.TestCase):
