@@ -2,12 +2,11 @@
 from datetime import datetime
 from esdl import esdl
 import helics as h
-import logging
 from dots_infrastructure.DataClasses import EsdlId, HelicsCalculationInformation, PublicationDescription, SubscriptionDescription, TimeStepInformation, TimeRequestType
 from dots_infrastructure.HelicsFederateHelpers import HelicsSimulationExecutor
 from dots_infrastructure.Logger import LOGGER
 from esdl import EnergySystem
-from dots_infrastructure.CalculationServiceHelperFunctions import get_vector_param_with_name
+from dots_infrastructure.CalculationServiceHelperFunctions import get_single_param_with_name
 
 import json
 import math
@@ -78,7 +77,6 @@ class CalculationServiceEV(HelicsSimulationExecutor):
         self.efficiency: dict[EsdlId, float]      = {}
 
         for esdl_id in self.simulator_configuration.esdl_ids:
-            LOGGER.info(f"Example of iterating over esdl ids: {esdl_id}")
 
             # Get profiles from the ESDL
             for obj in energy_system.eAllContents():
@@ -101,17 +99,14 @@ class CalculationServiceEV(HelicsSimulationExecutor):
 
     def send_state_of_charge(self, param_dict : dict, simulation_time : datetime, time_step_number : TimeStepInformation, esdl_id : EsdlId, energy_system : EnergySystem):
         # START user calc
-        LOGGER.info("calculation 'send_state_of_charge' started")
         LOGGER.info(f"Time: {simulation_time}")
-
-        # state_of_charge_ev_dict: dict[EsdlId, StateOfChargeEv] = {}
 
         # This sends out the soc at the beginning of the time step
         # That means, if the car arrives -> send arrival_soc
         # That means, if the car departed last time step -> send 0
         time_step_nr = time_step_number.current_time_step_number
         LOGGER.info(f"time_step_nr: {time_step_nr}")
-        if (time_step_nr - 1) in self.arrival_ptus[esdl_id]:  # if time_step = 1, arrival_ptu is 0
+        if (time_step_nr - 1) in self.arrival_ptus[esdl_id]:
             session_nr = self.arrival_ptus[esdl_id].index(time_step_nr - 1)
             state_of_charge_ev = self.arrival_socs[esdl_id][session_nr]
             self.socs[esdl_id] = state_of_charge_ev
@@ -119,28 +114,24 @@ class CalculationServiceEV(HelicsSimulationExecutor):
             state_of_charge_ev = self.socs[esdl_id]
 
         LOGGER.debug(f"EV {esdl_id} sends: {state_of_charge_ev}")
-        LOGGER.info("calculation 'send_state_of_charge' finished")
         # END user calc
 
         # return a list for all outputs:
         ret_val = {}
         ret_val["state_of_charge_ev"] = state_of_charge_ev
-        print('state_of_charge_ev', state_of_charge_ev)
-        # self.influx_connector.set_time_step_data_point(esdl_id, "EConnectionDispatch", simulation_time, ret_val["EConnectionDispatch"])
+
         return ret_val
     
     def update_state_of_charge(self, param_dict : dict, simulation_time : datetime, time_step_number : TimeStepInformation, esdl_id : EsdlId, energy_system : EnergySystem):
         # This function takes place at the end of the time step, after the EMS did its calculation
-        # START user calc
-        LOGGER.info("calculation 'update_state_of_charge' started")
+
         LOGGER.info(f"Time: {simulation_time}")
         # Get input
-        active_power_to_charge = get_vector_param_with_name(param_dict, "dispatch_ev")[0]
+        active_power_to_charge = get_single_param_with_name(param_dict, "dispatch_ev")
 
         # Get parameters
         max_charge_rate = self.max_charge_rate[esdl_id]
         capacity = self.capacity[esdl_id]
-        efficiency = self.efficiency[esdl_id]
 
         # Check if charging power does not exceed the maximum value
         LOGGER.info(f"To charge: {active_power_to_charge}/{max_charge_rate}")
@@ -155,8 +146,8 @@ class CalculationServiceEV(HelicsSimulationExecutor):
         # The soc calculated here is the soc at the end of the time step
         # That means that we simply update the soc here, and handle soc updates at arrival/departure in send_soc
         LOGGER.info(f"SoC before of EV {esdl_id}: {self.socs[esdl_id]}")
-        self.socs[esdl_id] += active_power_to_charge * self.ev_period_in_seconds  # * efficiency
-        # self.socs[esdl_id] = math.ceil(self.socs[esdl_id])  # add to prevent floating errors to not be able to charge
+        self.socs[esdl_id] += active_power_to_charge * self.ev_period_in_seconds
+
         LOGGER.info(f"SoC after of EV {esdl_id}: {self.socs[esdl_id]}")
 
         # Correct small exceedances
@@ -167,17 +158,9 @@ class CalculationServiceEV(HelicsSimulationExecutor):
 
         # Check if the state of charge is within bounds
         if (math.ceil(self.socs[esdl_id])) < 0 or (self.socs[esdl_id] > capacity):
-            raise ValueError(f"EV {self.esdl_objects[esdl_id].id} is charged over/under its capacity")
+            raise ValueError(f"EV {esdl_id} is charged over/under its capacity")
 
-        # time_step_nr = int(time_step_number.current_time_step_number)
-        # self.influxdb_client.set_time_step_data_point(esdl_id, 'SoC', time_step_nr, self.socs[esdl_id] / capacity)
-        # if time_step_nr == self.nr_of_time_steps:
-        #     self.influxdb_client.set_summary_data_point(esdl_id, 'summary_check', 1)
-
-        LOGGER.info("calculation 'update_state_of_charge' finished")
-        # END user calc
-        # ret_val = {}
-        return None
+        return {}
 
 if __name__ == "__main__":
 
