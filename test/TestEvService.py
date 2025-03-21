@@ -20,7 +20,7 @@ class Test(unittest.TestCase):
     def setUp(self):
         CalculationServiceHelperFunctions.get_simulator_configuration_from_environment = simulator_environment_e_connection
         esh = EnergySystemHandler()
-        esh.load_file('test/test.esdl')
+        esh.load_file('test.esdl')
         energy_system = esh.get_energy_system()
         self.energy_system = energy_system
 
