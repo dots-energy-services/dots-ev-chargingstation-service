@@ -2,7 +2,7 @@
 from datetime import datetime
 from esdl import esdl
 import helics as h
-from dots_infrastructure.DataClasses import EsdlId, HelicsCalculationInformation, PublicationDescription, SubscriptionDescription, TimeStepInformation, TimeRequestType
+from dots_infrastructure.DataClasses import EsdlId, HelicsCalculationInformation, PublicationDescription, SubscriptionDescription, TimeStepInformation
 from dots_infrastructure.HelicsFederateHelpers import HelicsSimulationExecutor
 from dots_infrastructure.Logger import LOGGER
 from esdl import EnergySystem
@@ -29,7 +29,6 @@ class CalculationServiceEV(HelicsSimulationExecutor):
 
         calculation_information = HelicsCalculationInformation(
             time_period_in_seconds=evchargingstation_period_in_seconds,
-            time_request_type=TimeRequestType.PERIOD,
             offset=0, 
             uninterruptible=False, 
             wait_for_current_time_update=False, 
@@ -52,7 +51,6 @@ class CalculationServiceEV(HelicsSimulationExecutor):
 
         calculation_information_update = HelicsCalculationInformation(
             time_period_in_seconds=evchargingstation_update_period_in_seconds,
-            time_request_type=TimeRequestType.ON_INPUT,
             offset=0,
             uninterruptible=False,
             wait_for_current_time_update=False,
