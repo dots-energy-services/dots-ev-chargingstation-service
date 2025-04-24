@@ -1,7 +1,7 @@
 from datetime import datetime
 import unittest
 from evservice.evservice import CalculationServiceEV
-from dots_infrastructure.DataClasses import SimulatorConfiguration, SimulaitonDataPoint, TimeStepInformation
+from dots_infrastructure.DataClasses import SimulatorConfiguration, TimeStepInformation
 from dots_infrastructure.test_infra.InfluxDBMock import InfluxDBMock
 import helics as h
 from esdl.esdl_handler import EnergySystemHandler
