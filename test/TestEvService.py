@@ -13,7 +13,7 @@ START_DATE_TIME = datetime(2024, 1, 1, 0, 0, 0)
 SIMULATION_DURATION_IN_SECONDS = 960
 
 def simulator_environment_e_connection():
-    return SimulatorConfiguration("EConnection", ["e19a105b-97cb-4e3e-8767-67a9764b77f6"], "Mock-Econnection", "127.0.0.1", BROKER_TEST_PORT, "test-id", SIMULATION_DURATION_IN_SECONDS, START_DATE_TIME, "test-host", "test-port", "test-username", "test-password", "test-database-name", h.HelicsLogLevel.DEBUG, ["PVInstallation", "EConnection"])
+    return SimulatorConfiguration("EConnection", ["0ff9e0be-d450-4bd3-b2a8-9c5b729c31e0"], "Mock-Econnection", "127.0.0.1", BROKER_TEST_PORT, "test-id", SIMULATION_DURATION_IN_SECONDS, START_DATE_TIME, "test-host", "test-port", "test-username", "test-password", "test-database-name", h.HelicsLogLevel.DEBUG, ["PVInstallation", "EConnection"])
 
 class Test(unittest.TestCase):
 
@@ -34,17 +34,18 @@ class Test(unittest.TestCase):
         service.init_calculation_service(self.energy_system)
 
         # Execute
-        ret_val_soc_not_present = service.send_state_of_charge(None, datetime(2020,9,1,12,0), TimeStepInformation(1,2), "e19a105b-97cb-4e3e-8767-67a9764b77f6", self.energy_system)
-        ret_val_soc_present = service.send_state_of_charge(None, datetime(2020,9,1,12,0), TimeStepInformation(75,80), "e19a105b-97cb-4e3e-8767-67a9764b77f6", self.energy_system)
+        ret_val_soc_not_present = service.send_state_of_charge(None, datetime(2020,9,1,12,0), TimeStepInformation(1,2), "0ff9e0be-d450-4bd3-b2a8-9c5b729c31e0", self.energy_system)
+        ret_val_soc_present = service.send_state_of_charge(None, datetime(2020,9,1,12,0), TimeStepInformation(75,80), "0ff9e0be-d450-4bd3-b2a8-9c5b729c31e0", self.energy_system)
 
         # Assert
+        expected_state_of_charge = 179197200
         self.assertEqual(ret_val_soc_not_present["state_of_charge_ev"], 0.0)
-        self.assertEqual(ret_val_soc_present["state_of_charge_ev"], 179197200)
+        self.assertEqual(ret_val_soc_present["state_of_charge_ev"], expected_state_of_charge)
 
     def test_update_state_of_charge(self):
 
         # Arrange
-        id_to_test = "e19a105b-97cb-4e3e-8767-67a9764b77f6"
+        id_to_test = "0ff9e0be-d450-4bd3-b2a8-9c5b729c31e0"
         service = CalculationServiceEV()
         service.influx_connector = InfluxDBMock()
 
@@ -57,12 +58,13 @@ class Test(unittest.TestCase):
         service.update_state_of_charge(param_dict, datetime(2020,9,1,12,0), TimeStepInformation(1,2), id_to_test, self.energy_system)
 
         # Assert
-        self.assertEqual(service.socs[id_to_test], 50.0 * 900)
+        expected_state_of_charge = 50.0 * 900
+        self.assertEqual(service.socs[id_to_test], expected_state_of_charge)
 
     def test_update_state_of_charge_charging_beyond_maximum_power(self):
 
         # Arrange
-        id_to_test = "e19a105b-97cb-4e3e-8767-67a9764b77f6"
+        id_to_test = "0ff9e0be-d450-4bd3-b2a8-9c5b729c31e0"
         service = CalculationServiceEV()
         service.influx_connector = InfluxDBMock()
 
@@ -78,7 +80,7 @@ class Test(unittest.TestCase):
     def test_update_state_of_charge_overcharging_gives_error(self):
 
         # Arrange
-        id_to_test = "e19a105b-97cb-4e3e-8767-67a9764b77f6"
+        id_to_test = "0ff9e0be-d450-4bd3-b2a8-9c5b729c31e0"
         service = CalculationServiceEV()
         service.influx_connector = InfluxDBMock()
 
