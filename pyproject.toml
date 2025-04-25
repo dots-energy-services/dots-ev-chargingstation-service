@@ -3,12 +3,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ExampleCalculationService"
+name = "evservice"
 version = "0.0.1"
 authors = [
-  { name="Example Author", email="author@example.com" },
+  { name="Gijs Verhoeven", email="g.verhoeven.1@tue.nl" },
 ]
-description = "A small example package"
+description = "ev service"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -18,5 +18,5 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/EES-TUe/Dots-calculation-service-template"
-Issues = "https://github.com/EES-TUe/Dots-calculation-service-template/issues"
+Homepage = "https://github.com/EES-TUe/evservice"
+Issues = "https://github.com/EES-TUe/evservice/issues"
