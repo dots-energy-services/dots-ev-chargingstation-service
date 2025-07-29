@@ -64,7 +64,6 @@ class CalculationServiceEV(HelicsSimulationExecutor):
         self.add_calculation(calculation_information_update)
 
     def init_calculation_service(self, energy_system: esdl.EnergySystem):
-        LOGGER.info("init calculation service: set-up initial state-of-charge")
 
         self.socs: dict[EsdlId, float]            = {}
         self.arrival_ptus: dict[EsdlId, list]    = {}
@@ -82,7 +81,6 @@ class CalculationServiceEV(HelicsSimulationExecutor):
                     esdl_object = obj
 
             description                  = json.loads(esdl_object.description)
-            print(description)
             initial_soc                  = description['arrival_socs'][0] if description['arrival_ptus'][0] == 0 else 0.0
             self.socs[esdl_id]           = initial_soc
             self.arrival_ptus[esdl_id]   = description['arrival_ptus']
