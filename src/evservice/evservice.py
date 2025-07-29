@@ -151,8 +151,12 @@ class CalculationServiceEV(HelicsSimulationExecutor):
         # Correct small exceedances
         if math.ceil(self.socs[esdl_id]) == 0:
             self.socs[esdl_id] = 0.0
-        if (self.socs[esdl_id] > capacity) and (math.floor(self.socs[esdl_id]) <= capacity):
+
+        capacity_in_kw = capacity/3.6e6
+        soc_in_kw = self.socs[esdl_id]/3.6e6
+        if ((self.socs[esdl_id] > capacity) and (math.floor(self.socs[esdl_id]) <= capacity)) or abs(capacity_in_kw - soc_in_kw) < eps:
             self.socs[esdl_id] = capacity
+        
 
         # Check if the state of charge is within bounds
         if (math.ceil(self.socs[esdl_id])) < 0 or (self.socs[esdl_id] > capacity):
