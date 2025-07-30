@@ -38,7 +38,7 @@ class Test(unittest.TestCase):
         ret_val_soc_present = service.send_state_of_charge(None, datetime(2020,9,1,12,0), TimeStepInformation(75,80), "0ff9e0be-d450-4bd3-b2a8-9c5b729c31e0", self.energy_system)
 
         # Assert
-        expected_state_of_charge = 179197200
+        expected_state_of_charge = 17919720
         self.assertEqual(ret_val_soc_not_present["state_of_charge_ev"], 0.0)
         self.assertEqual(ret_val_soc_present["state_of_charge_ev"], expected_state_of_charge)
 
@@ -96,6 +96,28 @@ class Test(unittest.TestCase):
         service.update_state_of_charge(param_dict, datetime(2020,9,1,12,0), TimeStepInformation(77,80), id_to_test, self.energy_system)
         with self.assertRaises(ValueError):
             service.update_state_of_charge(param_dict, datetime(2020,9,1,12,0), TimeStepInformation(78,80), id_to_test, self.energy_system)
+
+    def test_overcharing_by_small_epsilon_is_allowed(self):
+        # Arrange
+        id_to_test = "0ff9e0be-d450-4bd3-b2a8-9c5b729c31e0"
+        service = CalculationServiceEV()
+        service.influx_connector = InfluxDBMock()
+
+        # Initialize calculation functions
+        service.init_calculation_service(self.energy_system)
+
+        # Execute and assert
+        param_dict = {}
+        param_dict["dispatch_ev"] = 11000.0
+        
+        service.update_state_of_charge(param_dict, datetime(2020,9,1,12,0), TimeStepInformation(75,80), id_to_test, self.energy_system)
+        service.update_state_of_charge(param_dict, datetime(2020,9,1,12,0), TimeStepInformation(76,80), id_to_test, self.energy_system)
+        service.update_state_of_charge(param_dict, datetime(2020,9,1,12,0), TimeStepInformation(77,80), id_to_test, self.energy_system)
+
+        param_dict["dispatch_ev"] = 5.0 / 900
+        service.update_state_of_charge(param_dict, datetime(2020,9,1,12,0), TimeStepInformation(78,80), id_to_test, self.energy_system)
+        maximum_soc = 29700000
+        self.assertEqual(service.socs[id_to_test], maximum_soc)
 
 if __name__ == '__main__':
     unittest.main()
