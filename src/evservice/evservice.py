@@ -95,13 +95,11 @@ class CalculationServiceEV(HelicsSimulationExecutor):
 
     def send_state_of_charge(self, param_dict : dict, simulation_time : datetime, time_step_number : TimeStepInformation, esdl_id : EsdlId, energy_system : EnergySystem):
         # START user calc
-        LOGGER.info(f"Time: {simulation_time}")
-
         # This sends out the soc at the beginning of the time step
         # That means, if the car arrives -> send arrival_soc
         # That means, if the car departed last time step -> send 0
         time_step_nr = time_step_number.current_time_step_number
-        LOGGER.info(f"time_step_nr: {time_step_nr}")
+        LOGGER.debug(f"time_step_nr: {time_step_nr}")
         if (time_step_nr - 1) in self.arrival_ptus[esdl_id]:
             session_nr = self.arrival_ptus[esdl_id].index(time_step_nr - 1)
             state_of_charge_ev = self.arrival_socs[esdl_id][session_nr]
@@ -121,7 +119,7 @@ class CalculationServiceEV(HelicsSimulationExecutor):
     def update_state_of_charge(self, param_dict : dict, simulation_time : datetime, time_step_number : TimeStepInformation, esdl_id : EsdlId, energy_system : EnergySystem):
         # This function takes place at the end of the time step, after the EMS did its calculation
 
-        LOGGER.info(f"Time: {simulation_time}")
+        LOGGER.debug(f"Time: {simulation_time}")
         # Get input
         active_power_to_charge = get_single_param_with_name(param_dict, "dispatch_ev")
 
@@ -130,7 +128,7 @@ class CalculationServiceEV(HelicsSimulationExecutor):
         capacity = self.capacity[esdl_id]
 
         # Check if charging power does not exceed the maximum value
-        LOGGER.info(f"To charge: {active_power_to_charge}/{max_charge_rate}")
+        LOGGER.debug(f"To charge: {active_power_to_charge}/{max_charge_rate}")
         eps = 0.001
         if (active_power_to_charge >= max_charge_rate) and (abs(active_power_to_charge - max_charge_rate) < eps):
             active_power_to_charge = max_charge_rate
@@ -141,10 +139,10 @@ class CalculationServiceEV(HelicsSimulationExecutor):
         # Update state of charge (preparing for the next time step)
         # The soc calculated here is the soc at the end of the time step
         # That means that we simply update the soc here, and handle soc updates at arrival/departure in send_soc
-        LOGGER.info(f"SoC before of EV {esdl_id}: {self.socs[esdl_id]}")
+        LOGGER.debug(f"SoC before of EV {esdl_id}: {self.socs[esdl_id]}")
         self.socs[esdl_id] += active_power_to_charge * self.ev_period_in_seconds
 
-        LOGGER.info(f"SoC after of EV {esdl_id}: {self.socs[esdl_id]}")
+        LOGGER.debug(f"SoC after of EV {esdl_id}: {self.socs[esdl_id]}")
 
         # Correct small exceedances
         if math.ceil(self.socs[esdl_id]) == 0:
